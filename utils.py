@@ -1,6 +1,13 @@
+# Credit @LazyDeveloper.
+# Please Don't remove credit.
+# Born to make history @LazyDeveloper !
+# Thank you LazyDeveloper for helping us in this Journey
+# 🥰  Thank you for giving me credit @LazyDeveloperr  🥰
+# for any error please contact me -> telegram@LazyDeveloperr or insta @LazyDeveloperr 
+# rip paid developers 🤣 - >> No need to buy paid source code while @LazyDeveloperr is here 😍😍
 import logging
 from pyrogram.errors import InputUserDeactivated, UserNotParticipant, FloodWait, UserIsBlocked, PeerIdInvalid
-from info import AUTH_CHANNEL, LONG_IMDB_DESCRIPTION, MAX_LIST_ELM
+from info import *
 from imdb import IMDb
 import asyncio
 from pyrogram.types import Message, InlineKeyboardButton
@@ -13,6 +20,7 @@ from typing import List
 from database.users_chats_db import db
 from bs4 import BeautifulSoup
 import requests
+import aiohttp
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -32,10 +40,14 @@ START_CHAR = ('\'', '"', SMART_OPEN)
 class temp(object):
     BANNED_USERS = []
     BANNED_CHATS = []
+    LAZY_VERIFIED_CHATS = []
     ME = None
     CURRENT=int(os.environ.get("SKIP", 2))
     CANCEL = False
     MELCOW = {}
+    GETALL = {}
+    SHORT = {}
+    IMDB_CAP = {}
     U_NAME = None
     B_NAME = None
     SETTINGS = {}
@@ -167,7 +179,6 @@ async def search_gagala(text):
     titles = soup.find_all( 'h3' )
     return [title.getText() for title in titles]
 
-
 async def get_settings(group_id):
     settings = temp.SETTINGS.get(group_id)
     if not settings:
@@ -183,7 +194,6 @@ async def save_group_settings(group_id, key, value):
     
 def get_size(size):
     """Get size in readable format"""
-
     units = ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB"]
     size = float(size)
     i = 0
@@ -375,3 +385,125 @@ def humanbytes(size):
         size /= power
         n += 1
     return str(round(size, 2)) + " " + Dic_powerN[n] + 'B'
+    
+async def get_shortlink(link):
+    https = link.split(":")[0]
+    if "http" == https:
+        https = "https"
+        link = link.replace("http", https)
+    url = f'https://{URL_SHORTENR_WEBSITE}/api'
+    params = {'api': URL_SHORTNER_WEBSITE_API,
+              'url': link,
+              }
+
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, params=params, raise_for_status=True, ssl=False) as response:
+                data = await response.json()
+                if data["status"] == "success":
+                    return data['shortenedUrl']
+                else:
+                    logger.error(f"Error: {data['message']}")
+                    return f'https://{URL_SHORTENR_WEBSITE}/api?api={URL_SHORTNER_WEBSITE_API}&link={link}'
+
+    except Exception as e:
+        logger.error(e)
+        return f'{URL_SHORTENR_WEBSITE}/api?api={URL_SHORTNER_WEBSITE_API}&link={link}'
+
+
+
+def get_readable_time(seconds: int) -> str:
+    count = 0
+    readable_time = ""
+    time_list = []
+    time_suffix_list = ["s", "m", "h", " days"]
+    while count < 4:
+        count += 1
+        if count < 3:
+            remainder, result = divmod(seconds, 60)
+        else:
+            remainder, result = divmod(seconds, 24)
+        if seconds == 0 and remainder == 0:
+            break
+        time_list.append(int(result))
+        seconds = int(remainder)
+    for x in range(len(time_list)):
+        time_list[x] = str(time_list[x]) + time_suffix_list[x]
+    if len(time_list) == 4:
+        readable_time += time_list.pop() + ", "
+    time_list.reverse()
+    readable_time += ": ".join(time_list)
+    return readable_time 
+
+
+
+# async def get_cap(settings, remaining_seconds, files, query, total_results, search):
+#     # Aᴅᴅᴇᴅ Bʏ @creatorrio
+#     if settings["imdb"]:
+#         IMDB_CAP = temp.IMDB_CAP.get(query.from_user.id)
+#         if IMDB_CAP:
+#             cap = IMDB_CAP
+#             cap+="<b>\n\n<u>🍿 Your Movie Files 👇</u></b>\n\n"
+#             for file in files:
+#                 cap += f"<b>📁 <a href='https://telegram.me/{temp.U_NAME}?start=files_{file.file_id}'>[{get_size(file.file_size)}] {' '.join(filter(lambda x: not x.startswith('[') and not x.startswith('@') and not x.startswith('www.'), file.file_name.split()))}\n\n</a></b>"
+#         else:
+#             imdb = await get_poster(search, file=(files[0]).file_name) if settings["imdb"] else None
+#             if imdb:
+#                 TEMPLATE = script.IMDB_TEMPLATE_TXT
+#                 cap = TEMPLATE.format(
+#                     qurey=search,
+#                     title=imdb['title'],
+#                     votes=imdb['votes'],
+#                     aka=imdb["aka"],
+#                     seasons=imdb["seasons"],
+#                     box_office=imdb['box_office'],
+#                     localized_title=imdb['localized_title'],
+#                     kind=imdb['kind'],
+#                     imdb_id=imdb["imdb_id"],
+#                     cast=imdb["cast"],
+#                     runtime=imdb["runtime"],
+#                     countries=imdb["countries"],
+#                     certificates=imdb["certificates"],
+#                     languages=imdb["languages"],
+#                     director=imdb["director"],
+#                     writer=imdb["writer"],
+#                     producer=imdb["producer"],
+#                     composer=imdb["composer"],
+#                     cinematographer=imdb["cinematographer"],
+#                     music_team=imdb["music_team"],
+#                     distributors=imdb["distributors"],
+#                     release_date=imdb['release_date'],
+#                     year=imdb['year'],
+#                     genres=imdb['genres'],
+#                     poster=imdb['poster'],
+#                     plot=imdb['plot'],
+#                     rating=imdb['rating'],
+#                     url=imdb['url'],
+#                     **locals()
+#                 )
+#                 cap+="<b>\n\n<u>🍿 Your Movie Files 👇</u></b>\n\n"
+#                 for file in files:
+#                     cap += f"<b>📁 <a href='https://telegram.me/{temp.U_NAME}?start=files_{file.file_id}'>[{get_size(file.file_size)}] {' '.join(filter(lambda x: not x.startswith('[') and not x.startswith('@') and not x.startswith('www.'), file.file_name.split()))}\n\n</a></b>"
+#             else:
+#                 cap = f"<b>Tʜᴇ Rᴇꜱᴜʟᴛꜱ Fᴏʀ ☞ {search}\n\nRᴇǫᴜᴇsᴛᴇᴅ Bʏ ☞ {message.from_user.mention}\n\nʀᴇsᴜʟᴛ sʜᴏᴡ ɪɴ ☞ {remaining_seconds} sᴇᴄᴏɴᴅs\n\nᴘᴏᴡᴇʀᴇᴅ ʙʏ ☞ : {message.chat.title}\n\n⚠️ ᴀꜰᴛᴇʀ 5 ᴍɪɴᴜᴛᴇꜱ ᴛʜɪꜱ ᴍᴇꜱꜱᴀɢᴇ ᴡɪʟʟ ʙᴇ ᴀᴜᴛᴏᴍᴀᴛɪᴄᴀʟʟʏ ᴅᴇʟᴇᴛᴇᴅ 🗑️\n\n</b>"
+#                 cap+="<b><u>🍿 Your Movie Files 👇</u></b>\n\n"
+#                 for file in files:
+#                     cap += f"<b>📁 <a href='https://telegram.me/{temp.U_NAME}?start=files_{file.file_id}'>[{get_size(file.file_size)}] {' '.join(filter(lambda x: not x.startswith('[') and not x.startswith('@') and not x.startswith('www.'), file.file_name.split()))}\n\n</a></b>"
+#     else:
+#         cap = f"<b>Hᴇʏ {query.from_user.mention}, Fᴏᴜɴᴅ {total_results} Rᴇsᴜʟᴛs ғᴏʀ Yᴏᴜʀ Movie {search}\n\n</b>"
+#         cap+="<b><u>🍿 Your Movie Files 👇</u></b>\n\n"
+#         for file in files:
+#             cap += f"<b>📁 <a href='https://telegram.me/{temp.U_NAME}?start=files_{file.file_id}'>[{get_size(file.file_size)}] {' '.join(filter(lambda x: not x.startswith('[') and not x.startswith('@') and not x.startswith('www.'), file.file_name.split()))}\n\n</a></b>"
+#     return cap
+
+
+
+
+
+# Credit @LazyDeveloper.
+# Please Don't remove credit.
+# Born to make history @LazyDeveloper !
+# Thank you LazyDeveloper for helping us in this Journey
+# 🥰  Thank you for giving me credit @LazyDeveloperr  🥰
+# for any error please contact me -> telegram@LazyDeveloperr or insta @LazyDeveloperr 
+# rip paid developers 🤣 - >> No need to buy paid source code while @LazyDeveloperr is here 😍😍

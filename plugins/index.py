@@ -12,11 +12,13 @@ from utils import temp
 import re
 import humanize
 from info import ADMINS 
+from lazybot import LazyPrincessBot 
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 lock = asyncio.Lock()
-
+semaphore = asyncio.Semaphore(1) # create a semaphore with initial value of 1
 
 @Client.on_callback_query(filters.regex(r'^index'))
 async def index_files(bot, query):
@@ -91,10 +93,8 @@ async def send_for_index(bot, message):
             filename = file.file_name
             filesize = humanize.naturalsize(file.file_size) 
             buttons = [
-                [ InlineKeyboardButton("📝✧✧ S𝚝ar𝚝 re𝚗aᗰi𝚗g ✧✧📝", callback_data="rename") ],
-                [ InlineKeyboardButton("📸G͢e͢t͢ T͢h͢u͢m͢b͢n͢a͢i͢l͢ ᶜᵒᵐⁱⁿᵍ ˢᵒᵒⁿ", callback_data="getlazythumbnail") ],
-                [ InlineKeyboardButton("🔏G͢e͢n͢e͢r͢a͢t͢e͢ L͢i͢n͢k͢ ᶜᵒᵐⁱⁿᵍ ˢᵒᵒⁿ", callback_data="getlazylink") ],
-                [ InlineKeyboardButton('📇✧✧ S𝚝ar𝚝 iŋdᗴＸi𝚗g ✧✧📇',callback_data=f'index#accept#{chat_id}#{last_msg_id}#{message.from_user.id}')],
+                [ InlineKeyboardButton("📝✧ S𝚝ar𝚝 re𝚗aᗰi𝚗g ✧📝", callback_data="rename") ],
+                [ InlineKeyboardButton('📇✧✧  S𝚝ar𝚝 iŋdᗴＸi𝚗g  ✧✧📇',callback_data=f'index#accept#{chat_id}#{last_msg_id}#{message.from_user.id}')],
                 [ InlineKeyboardButton('⨳  C L Ф S Ξ  ⨳', callback_data='cancel'),]
             ]
             reply_markup = InlineKeyboardMarkup(buttons)
@@ -143,8 +143,6 @@ async def send_for_index(bot, message):
             k = await message.reply('🎉\n\n\n❤️ Thank You For the Contribution, Wait For My Moderators to verify the files.\n\n\n🎁')
             buttons = [
                         [InlineKeyboardButton("📝✧✧ S𝚝ar𝚝 re𝚗aᗰi𝚗g ✧✧📝", callback_data="rename") ],
-                        [ InlineKeyboardButton("📸G͢e͢t͢ T͢h͢u͢m͢b͢n͢a͢i͢l͢ ᶜᵒᵐⁱⁿᵍ ˢᵒᵒⁿ", callback_data="getlazythumbnail") ],
-                        [ InlineKeyboardButton("🔏G͢e͢n͢e͢r͢a͢t͢e͢ L͢i͢n͢k͢ ᶜᵒᵐⁱⁿᵍ ˢᵒᵒⁿ", callback_data="getlazylink") ],
                         [InlineKeyboardButton('⨳  C L Ф S Ξ  ⨳', callback_data='cancel')]]
             reply_markup = InlineKeyboardMarkup(buttons)
             file = getattr(message, message.media.value)
@@ -160,8 +158,6 @@ async def send_for_index(bot, message):
             await message.reply('🎉\n\n\n❤️ Thank You For the Contribution, Wait For My Moderators to verify the files.\n\n\n🎁')
             buttons = [
                         [InlineKeyboardButton("📝✧✧ S𝚝ar𝚝 re𝚗aᗰi𝚗g ✧✧📝", callback_data="requireauth") ],
-                        [ InlineKeyboardButton("📸G͢e͢t͢ T͢h͢u͢m͢b͢n͢a͢i͢l͢ ᶜᵒᵐⁱⁿᵍ ˢᵒᵒⁿ", callback_data="reqauthgetlazythumbnail") ],
-                        [ InlineKeyboardButton("🔏G͢e͢n͢e͢r͢a͢t͢e͢ L͢i͢n͢k͢ ᶜᵒᵐⁱⁿᵍ ˢᵒᵒⁿ", callback_data="getlazylink") ],
                         [InlineKeyboardButton('⨳  C L Ф S Ξ  ⨳', callback_data='cancel')]]
             reply_markup = InlineKeyboardMarkup(buttons)
             file = getattr(message, message.media.value)
@@ -177,8 +173,6 @@ async def send_for_index(bot, message):
         await message.reply('🎉\n\n\n❤️ Thank You For the Contribution, Wait For My Moderators to verify the files.\n\n\n🎁')
  
 
-
-
 @Client.on_message(filters.command('setskip') & filters.user(ADMINS))
 async def set_skip_number(bot, message):
     if ' ' in message.text:
@@ -191,6 +185,7 @@ async def set_skip_number(bot, message):
         temp.CURRENT = int(skip)
     else:
         await message.reply("Give me a skip number")
+
 
 
 async def index_files_to_db(lst_msg_id, chat, msg, bot):
@@ -239,6 +234,6 @@ async def index_files_to_db(lst_msg_id, chat, msg, bot):
                     errors += 1
         except Exception as e:
             logger.exception(e)
-            await msg.edit(f'Error: {e}')
+            await msg.edit(f'Error baby: {e}')
         else:
             await msg.edit(f'Succesfully saved <code>{total_files}</code> to dataBase!\nDuplicate Files Skipped: <code>{duplicate}</code>\nDeleted Messages Skipped: <code>{deleted}</code>\nNon-Media messages skipped: <code>{no_media + unsupported}</code>(Unsupported Media - `{unsupported}` )\nErrors Occurred: <code>{errors}</code>')
