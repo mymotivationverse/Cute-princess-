@@ -94,7 +94,7 @@ LAZY_YT_HANDLE = environ.get('LAZY_YT_HANDLE', 'LayDeveloperr')
 MOVIE_GROUP_USERNAME = environ.get('MOVIE_GROUP_USERNAME', "+tl1Ll8L8TbQwMjdl")
 
 # Url Shortner
-URL_MODE = is_enabled(environ.get("URL_MODE", "True"), False)
+URL_MODE = False
 URL_SHORTENR_WEBSITE = environ.get('URL_SHORTENR_WEBSITE', 'atglinks.com')
 URL_SHORTNER_WEBSITE_API = environ.get('URL_SHORTNER_WEBSITE_API', 'b22588b960e9ed29dad0f068cfb69dbd844662e2')
 lazy_groups = environ.get('LAZY_GROUPS', '')
